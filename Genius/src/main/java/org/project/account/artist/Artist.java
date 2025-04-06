@@ -1,10 +1,12 @@
 package org.project.account.artist;
 
 import org.project.Methods;
+import org.project.Session;
 import org.project.account.Account;
 import org.project.account.user.SimpleUser;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.Scanner;
 
 public abstract class Artist implements Account {
@@ -30,20 +32,20 @@ public abstract class Artist implements Account {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Please enter the following information:");
         System.out.println("First Name: ");
-        firstName = scanner.nextLine();
+        Session.currentArtist.firstName = scanner.nextLine();
         System.out.println("Last Name: ");
-        lastName = scanner.nextLine();
+        Session.currentArtist.lastName = scanner.nextLine();
         while (true) {
             System.out.println("Age: ");
-            age = scanner.nextInt();
-            if (age < 7) {System.out.println("you're too young for this app lil fella, come back with your parents.");}
-            else if (age > 110) {System.out.println("aren't you dead already? be for real please.");}
+            Session.currentArtist.age = scanner.nextInt();
+            if (Session.currentArtist.age < 7) {System.out.println("you're too young for this app lil fella, come back with your parents.");}
+            else if (Session.currentArtist.age > 110) {System.out.println("aren't you dead already? be for real please.");}
             else {break;}
         }
         while (true) {
             System.out.println("Email: ");
-            email = scanner.nextLine();
-            if (email.matches("^(?![.-])([a-zA-Z0-9]+[\\w.-]*[a-zA-Z0-9])@([a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*(?:\\.[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)*)\\.[a-zA-Z]{2,6}$")) {
+            Session.currentArtist.email = scanner.nextLine();
+            if (Session.currentArtist.email.matches("^(?![.-])([a-zA-Z0-9]+[\\w.-]*[a-zA-Z0-9])@([a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*(?:\\.[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)*)\\.[a-zA-Z]{2,6}$")) {
                 break;
             }
             else {
@@ -52,8 +54,8 @@ public abstract class Artist implements Account {
         }
         while (true) {
             System.out.println("Username: (can only contain letters, digits and underscores)");
-            username = scanner.nextLine();
-            if (username.matches("^[a-zA-Z0-9]+[a-zA-Z0-9_]*$")){
+            Session.currentArtist.username = scanner.nextLine();
+            if (Session.currentArtist.username.matches("^[a-zA-Z0-9]+[a-zA-Z0-9_]*$")){
                 break;
             }
             else {
@@ -62,18 +64,18 @@ public abstract class Artist implements Account {
         }
         while (true) {
             System.out.println("Password: (must be at least 8 characters long and contain capital and small letters, digits and special characters (!@#$%^&*))");
-            password = scanner.nextLine();
-            if (password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[()!@#$%^&*])[A-Za-z\\d()!@#$%^&*]{8,}$")){
+            Session.currentArtist.password = scanner.nextLine();
+            if (Session.currentArtist.password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[()!@#$%^&*])[A-Za-z\\d()!@#$%^&*]{8,}$")){
                 break;
             }
             else {
                 System.out.println("Please enter a valid password.");
             }
         }
-        ArtistMain artist = new ArtistMain(firstName, lastName, age, email, username, password);
-        infoWriter("src\\main\\java\\org\\project\\files\\usersInfo.txt", username, password, firstName, lastName, age, email);
-        usernameWriter("src\\main\\java\\org\\project\\files\\usernames.txt", username);
-        Methods.firstView();
+//        ArtistMain artist = new ArtistMain(firstName, lastName, age, email, username, password);
+        infoWriter("src\\main\\java\\org\\project\\files\\usersInfo.txt", Session.currentArtist.username, Session.currentArtist.password, Session.currentArtist.firstName, Session.currentArtist.lastName, Session.currentArtist.age, Session.currentArtist.email);
+        usernameWriter("src\\main\\java\\org\\project\\files\\usernames.txt", Session.currentArtist.username);
+        greeting();
     }
 
     @Override
@@ -104,5 +106,21 @@ public abstract class Artist implements Account {
             System.out.println("An error occurred while writing to the file.");
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void greeting() {
+        LocalTime now = LocalTime.now();
+        int hour = now.getHour();
+        if (hour >= 5 && hour < 12) {
+            System.out.println("Good Morning, " + Session.currentArtist.firstName + "! ☀️");
+        } else if (hour >= 12 && hour < 17) {
+            System.out.println("Good Afternoon, " + Session.currentArtist.firstName + "! 🌤️");
+        } else if (hour >= 17 && hour < 21) {
+            System.out.println("Good Evening, " + Session.currentArtist.firstName + "! 🌆");
+        } else {
+            System.out.println("Good Night, " + Session.currentArtist.firstName + "! 🌙");
+        }
+        Methods.guid();
     }
 }

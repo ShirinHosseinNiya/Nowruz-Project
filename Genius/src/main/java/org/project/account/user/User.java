@@ -1,9 +1,11 @@
 package org.project.account.user;
 
 import org.project.Methods;
+import org.project.Session;
 import org.project.account.Account;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalTime;
 import java.util.Scanner;
 
 public abstract class User implements Account {
@@ -29,21 +31,20 @@ public abstract class User implements Account {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Please enter the following information:");
         System.out.println("First Name: ");
-        firstName = scanner.nextLine();
+        Session.currentUser.firstName = scanner.nextLine();
         System.out.println("Last Name: ");
-        lastName = scanner.nextLine();
+        Session.currentUser.lastName = scanner.nextLine();
         while (true) {
             System.out.println("Age: ");
-            age = scanner.nextInt();
-            if (age < 7) {System.out.println("you're too young for this app lil fella, come back with your parents.");}
-            else if (age > 110) {System.out.println("aren't you dead already? be for real please.");}
+            Session.currentUser.age = scanner.nextInt();
+            if (Session.currentUser.age < 7) {System.out.println("you're too young for this app lil fella, come back with your parents.");}
+            else if (Session.currentUser.age > 110) {System.out.println("aren't you dead already? be for real please.");}
             else {break;}
         }
         while (true) {
-            email = null;
             System.out.println("Email: ");
-            email = scanner.nextLine();
-            if (email.matches("^(?![.-])([a-zA-Z0-9]+[\\w.-]*[a-zA-Z0-9])@([a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*(?:\\.[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)*)\\.[a-zA-Z]{2,6}$")) {
+            Session.currentUser.email = scanner.nextLine();
+            if (Session.currentUser.email.matches("^(?![.-])([a-zA-Z0-9]+[\\w.-]*[a-zA-Z0-9])@([a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*(?:\\.[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)*)\\.[a-zA-Z]{2,6}$")) {
                 break;
             }
             else {
@@ -52,8 +53,8 @@ public abstract class User implements Account {
         }
         while (true) {
             System.out.println("Username: (can only contain letters, digits and underscores)");
-            username = scanner.nextLine();
-            if (username.matches("^[a-zA-Z0-9]+[a-zA-Z0-9_]*$")){
+            Session.currentUser.username = scanner.nextLine();
+            if (Session.currentUser.username.matches("^[a-zA-Z0-9]+[a-zA-Z0-9_]*$")){
                 break;
             }
             else {
@@ -62,18 +63,18 @@ public abstract class User implements Account {
         }
         while (true) {
             System.out.println("Password: (must be at least 8 characters long and contain capital and small letters, digits and special characters (!@#$%^&*))");
-            password = scanner.nextLine();
-            if (password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[()!@#$%^&*])[A-Za-z\\d()!@#$%^&*]{8,}$")){
+            Session.currentUser.password = scanner.nextLine();
+            if (Session.currentUser.password.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[()!@#$%^&*])[A-Za-z\\d()!@#$%^&*]{8,}$")){
                 break;
             }
             else {
                 System.out.println("Please enter a valid password.");
             }
         }
-        SimpleUser user = new SimpleUser(firstName, lastName, age, email, username, password);
-        infoWriter("src\\main\\java\\org\\project\\files\\usersInfo.txt", username, password, firstName, lastName, age, email);
-        usernameWriter("src\\main\\java\\org\\project\\files\\usernames.txt", username);
-        Methods.firstView();
+//        SimpleUser user = new SimpleUser(firstName, lastName, age, email, username, password);
+        infoWriter("src\\main\\java\\org\\project\\files\\usersInfo.txt", Session.currentUser.username, Session.currentUser.password, Session.currentUser.firstName, Session.currentUser.lastName, Session.currentUser.age, Session.currentUser.email);
+        usernameWriter("src\\main\\java\\org\\project\\files\\usernames.txt", Session.currentUser.username);
+        greeting();
     }
 
     @Override
@@ -106,8 +107,22 @@ public abstract class User implements Account {
         }
     }
 
+    @Override
     public void greeting() {
-        System.out.println("Hello, " + firstName + "!");
+        LocalTime now = LocalTime.now();
 
+        int hour = now.getHour();
+        if (hour >= 5 && hour < 12) {
+            System.out.println("Good Morning, " + Session.currentUser.firstName + "! ☀️");
+        } else if (hour >= 12 && hour < 17) {
+            System.out.println("Good Afternoon, " + Session.currentUser.firstName + "! 🌤️");
+        } else if (hour >= 17 && hour < 21) {
+            System.out.println("Good Evening, " + Session.currentUser.firstName + "! 🌆");
+        } else {
+            System.out.println("Good Night, " + Session.currentUser.firstName + "! 🌙");
+        }
+        Methods.guid();
     }
+
+
 }

@@ -8,4 +8,6 @@ public interface Account {
     public void usernameWriter(String filename, String username);
 
     public void greeting();
+
+    public void pageView();
 }

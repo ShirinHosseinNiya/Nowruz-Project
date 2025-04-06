@@ -7,6 +7,7 @@ import org.project.account.user.User;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -49,12 +50,12 @@ public class Methods {
         int role = scanner.nextInt();
         switch (role) {
             case 1:
-                User user = new SimpleUser("", "", 0, "", "", "");
-                user.register();
+                Session.currentUser = new SimpleUser("", "", 0, "", "", "");
+                Session.currentUser.register();
                 break;
             case 2:
-                Artist artist = new ArtistMain("", "", 0, "", "", "");
-                artist.register();
+                Session.currentArtist = new ArtistMain("", "", 0, "", "", "");
+                Session.currentArtist.register();
                 break;
         }
     }
@@ -69,15 +70,17 @@ public class Methods {
             while (scanner1.hasNextLine()) {
                 String line = scanner1.nextLine();
                 if (line.equals(username)) {
-                    String truePassword = scanner.nextLine();
+                    String truePassword = scanner1.nextLine();
                     if (password.equals(truePassword)) {
                         String role = scanner1.nextLine();
                         switch (role) {
                             case "user":
-                                SimpleUser user = new SimpleUser(scanner1.nextLine(), scanner1.nextLine(), scanner1.nextInt(), scanner1.nextLine(), username, password);
+                                Session.currentUser = new SimpleUser(scanner1.nextLine(), scanner1.nextLine(), scanner1.nextInt(), scanner1.nextLine(), username, password);
+                                Session.currentUser.greeting();
                                 break;
                             case "artist":
-                                ArtistMain artist = new ArtistMain(scanner1.nextLine(), scanner1.nextLine(), scanner1.nextInt(), scanner1.nextLine(), username, password);
+                                Session.currentArtist = new ArtistMain(scanner1.nextLine(), scanner1.nextLine(), scanner1.nextInt(), scanner1.nextLine(), username, password);
+                                Session.currentArtist.greeting();
                                 break;
                         }
                     }
@@ -94,22 +97,6 @@ public class Methods {
             System.out.println("File Not Found");
             e.printStackTrace();
         }
-        firstView();
-    }
-
-    public static void firstView() {
-        LocalTime now = LocalTime.now();
-        int hour = now.getHour();
-        if (hour >= 5 && hour < 12) {
-            System.out.println("Good Morning! ☀️");
-        } else if (hour >= 12 && hour < 17) {
-            System.out.println("Good Afternoon! 🌤️");
-        } else if (hour >= 17 && hour < 21) {
-            System.out.println("Good Evening! 🌆");
-        } else {
-            System.out.println("Good Night! 🌙");
-        }
-        guid();
     }
 
     public static void guid() {
@@ -128,15 +115,16 @@ public class Methods {
         Scanner scanner = new Scanner(System.in);
         String searchTerm = scanner.nextLine();
         ArrayList<String> results = new ArrayList<>();
+        ArrayList<String> artists = new ArrayList<>();
         ArrayList<String> types = new ArrayList<>();
         int[] number = new int[1];
         number[0] = 1;
         System.out.println("Artists: ");
         searchingArtist(searchTerm, number, results, types);
         System.out.println("Albums: ");
-        searchingSongAlbum("searchAlbum", searchTerm, number, results, types, "Album");
+        searchingSongAlbum("searchAlbum", searchTerm, number, results, artists, types, "Album");
         System.out.println("Songs: ");
-        searchingSongAlbum("searchSong", searchTerm, number, results, types, "Song");
+        searchingSongAlbum("searchSong", searchTerm, number, results, artists, types, "Song");
         number[0] = 1;
         System.out.println("Please enter the number of the result you're looking for (enter 0 to exit): ");
         int userChoice = scanner.nextInt();
@@ -150,7 +138,7 @@ public class Methods {
             // album page view
         }
         else if (types.get(userChoice - 1).equals("song")) {
-            // song page view
+            songPageView(results.get(userChoice - 1), artists.get(userChoice - 1));
         }
     }
 
@@ -158,7 +146,7 @@ public class Methods {
         try {
             boolean found = false;
             File file = new File ("src\\main\\java\\org\\project\\files\\searchArtist.txt");
-            Scanner scanner1 = new Scanner(file);
+            Scanner scanner1 =  new Scanner(file);
             while (scanner1.hasNextLine()) {
                 String artist = scanner1.nextLine();
                 if (artist.contains(searchTerm)) {
@@ -179,7 +167,7 @@ public class Methods {
         }
     }
 
-    public static void searchingSongAlbum(String fileName, String searchTerm, int[] number, ArrayList<String> results, ArrayList<String> types, String type) {
+    public static void searchingSongAlbum(String fileName, String searchTerm, int[] number, ArrayList<String> results, ArrayList<String> artists, ArrayList<String> types, String type) {
         try {
             boolean found = false;
             File file = new File ("src\\main\\java\\org\\project\\files\\" + fileName + ".txt");
@@ -188,9 +176,11 @@ public class Methods {
                 String result = scanner1.nextLine();
                 if (result.contains(searchTerm)) {
                     found = true;
-                    String resultArtist = result + " - " + scanner1.nextLine();
+                    String artist = scanner1.nextLine();
+                    String resultArtist = result + " - " + artist;
                     System.out.println(number[0] + ". " + resultArtist);
                     results.add(resultArtist);
+                    artists.add(artist);
                     types.add(type);
                     number[0]++;
                 }
@@ -201,6 +191,84 @@ public class Methods {
         }
         catch (FileNotFoundException e) {
             System.out.println("File Not Found");
+            e.printStackTrace();
+        }
+    }
+
+    public static void songPageView(String songArtist, String artist) {
+        ArrayList<String> lyrics = new ArrayList<>();
+        int number = 1;
+        try {
+            File file = new File ("src\\main\\java\\org\\project\\files\\Songs\\" + songArtist + "\\info.txt");
+            Scanner scanner = new Scanner(file);
+            System.out.println(scanner.nextLine());     //prints name of the song
+            System.out.println(scanner.nextLine());     //prints album of the song
+            System.out.println(scanner.nextLine());     //prints artist of the song
+            System.out.println("");
+            while (scanner.hasNextLine()) {
+                String lyric = scanner.nextLine();
+                System.out.println(number + ". " + lyric);
+                lyrics.add(lyric);
+                number++;
+            }
+            while (true) {
+                System.out.println("tips:");
+                System.out.println("Press 'C' to comment on a specific line");
+                System.out.println("Press 'E' to edit a specific line.");
+                System.out.println("Enter '0' to return to the Home page.");
+                Scanner scanner1 = new Scanner(System.in);
+                char userCommand = scanner1.next().charAt(0);
+                if (userCommand == 'C' || userCommand == 'c') {
+                    // comment method
+                }
+                else if (userCommand == 'E' || userCommand == 'e') {
+                    editing(number, songArtist, artist);
+                }
+                else if (userCommand == '0') {
+                    guid();
+                }
+            }
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("File Not Found");
+        }
+    }
+
+    public static void editing(int lines, String artist, String songArtist) {
+        Scanner scanner = new Scanner(System.in);
+        int lineNumber;
+        while (true) {
+            System.out.println("Enter the line number you'd like to edit: ");
+            lineNumber = scanner.nextInt();
+            if (lineNumber > lines) {
+                System.out.println("The number you have entered is greater than the whole song. Please try again.");
+            }
+            else if (lineNumber <= 0) {
+                System.out.println("Enter a number greater than 0. Please try again.");
+            }
+            else {
+                break;
+            }
+        }
+        File folder = new File("src\\main\\java\\org\\project\\files\\Artists\\" + artist + "\\editRequests");
+        if (!folder.exists() && !folder.mkdirs()) {
+            System.out.println("Folder could not be created.");
+        }
+        try {
+            File file = new File ("src\\main\\java\\org\\project\\files\\Songs\\" + songArtist + "\\editRequests\\numberOfEdits.txt");
+            Scanner scanner1 = new Scanner(file);
+            int number = scanner1.nextInt();
+            number++;
+            FileWriter writer = new FileWriter("src\\main\\java\\org\\project\\files\\Songs\\" + songArtist + "\\editRequests\\numberOfEdits.txt");
+            writer.write(number);
+            writer.close();
+            FileWriter writer1 = new FileWriter("src\\main\\java\\org\\project\\files\\Songs\\" + songArtist + "\\editRequests\\" + number + ".txt");
+            System.out.println("Please enter the correct lyrics for line" + lineNumber);
+            String correctLyric  = scanner.nextLine();
+            writer1.write(lineNumber + "\n" + correctLyric);
+            writer1.close();
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
     }
