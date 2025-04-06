@@ -121,6 +121,6 @@ public abstract class Artist implements Account {
         } else {
             System.out.println("Good Night, " + Session.currentArtist.firstName + "! 🌙");
         }
-        Methods.guid();
+        // guid (must be overridden)
     }
 }

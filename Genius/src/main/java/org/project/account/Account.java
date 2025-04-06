@@ -10,4 +10,7 @@ public interface Account {
     public void greeting();
 
     public void pageView();
+
+    public void guid();
+
 }
