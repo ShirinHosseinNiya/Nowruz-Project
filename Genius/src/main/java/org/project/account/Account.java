@@ -1,5 +1,7 @@
 package org.project.account;
 
+import java.util.ArrayList;
+
 public interface Account {
     public void register();
 
@@ -8,8 +10,6 @@ public interface Account {
     public void usernameWriter(String filename, String username);
 
     public void greeting();
-
-    public void pageView();
 
     public void guid();
 
